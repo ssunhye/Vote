@@ -2,6 +2,7 @@ package com.ajou.vote;
 
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -36,29 +37,33 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        startActivity(new Intent(this, LoginActivity.class));
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // recycler view
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
-
         items = new ArrayList<RecyclerItem>();
-
-        // ###DB
         for (int i = 0; i < 5; i++)
             items.add(new RecyclerItem(R.drawable.ls_normal,
                     "6.15 지방선거",
                     "경기도 수원시장",
                     "6월 15일",
                     "16:15"));
-
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-
         adapter = new MyAdapter();
         recyclerView.setAdapter(adapter);
+
+        // floating action button
+        FloatingActionButton fab = findViewById(R.id.floatingActionButton);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                startActivity(new Intent(getApplicationContext(), CreateActivity.class));
+            }
+        });
     }
 
     public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
@@ -90,13 +95,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
 
-                    Intent intentVote = new Intent(getApplicationContext(), VoteActivity.class);
-                    startActivity(intentVote);
-
-                    Intent intentResult = new Intent(getApplicationContext(), ResultActivity.class);
-                    startActivity(intentResult);
-
-
+                    startActivity(new Intent(getApplicationContext(), ResultActivity.class));
                 }
             });
         }

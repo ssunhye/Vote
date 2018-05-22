@@ -25,8 +25,7 @@ public class LoginActivity extends AppCompatActivity {
 
     Button btn_login, btn_signup;
     EditText txt_id, txt_pw;
-    String id, pw;
-    static int phone;
+    String id, pw, ph;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +43,11 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 id = txt_id.getText().toString();
-                pw = txt_pw.getText().toString(); // ### ENC
+                pw = txt_pw.getText().toString();
 
+                //
+                // ### ENC
+                //
                 new getLogin().execute(IP_ADDR + "/login?name=" + id + "&password=" + pw);
             }
         });
@@ -117,12 +119,12 @@ public class LoginActivity extends AppCompatActivity {
 
             if (str.length() > 5) {
 
-                phone = Integer.parseInt(str.substring(str.indexOf(":") + 2, str.indexOf("}") - 1));
-                finish(); // exit login activity
+                ph = str.substring(str.indexOf(":") + 2, str.indexOf("}") - 1);
+                startActivity(new Intent(getApplicationContext(), MainActivity.class)); // enter main activity
             } else { // no member data
 
-                phone = 0;
-                Toast.makeText(LoginActivity.this, "존재하지 않는 계정입니다.", Toast.LENGTH_LONG).show(); // alert
+                ph = null;
+                Toast.makeText(getApplicationContext(), "존재하지 않는 계정입니다.", Toast.LENGTH_LONG).show(); // alert
         }
         }
     }
