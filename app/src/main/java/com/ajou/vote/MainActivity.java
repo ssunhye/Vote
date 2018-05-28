@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<RecyclerItem> items;
 
     final static String IP_ADDR = "http://182.230.139.141:3000";
+    static int pos;
+    static String[] title, description, candidate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,20 +42,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // recycler view
-        recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setHasFixedSize(true);
-        items = new ArrayList<RecyclerItem>();
-        for (int i = 0; i < 5; i++)
-            items.add(new RecyclerItem(R.drawable.ls_normal,
-                    "6.15 지방선거",
-                    "경기도 수원시장",
-                    "6월 15일",
-                    "16:15"));
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        adapter = new MyAdapter();
-        recyclerView.setAdapter(adapter);
+        new getMain().execute(IP_ADDR + "/main");
+
+        // floating action button
+        FloatingActionButton fab = findViewById(R.id.floatingActionButton);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                startActivity(new Intent(getApplicationContext(), CreateActivity.class));
+            }
+        });
+    }
+
+    @Override
+    protected void onRestart() {
+
+        super.onRestart();
+
+        setContentView(R.layout.activity_main);
+
+        new getMain().execute(IP_ADDR + "/main");
 
         // floating action button
         FloatingActionButton fab = findViewById(R.id.floatingActionButton);
@@ -83,19 +92,20 @@ public class MainActivity extends AppCompatActivity {
         // get current view
         public void onBindViewHolder(ItemViewHolder holder, final int position) {
 
-            final int pos = position;
             RecyclerItem item = items.get(position);
             holder.image.setImageResource(item.getImage());
             holder.title.setText(item.getTitle());
             holder.detail.setText(item.getDetail());
-            holder.date.setText(item.getDate());
             holder.time.setText(item.getTime());
 
             holder.image.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
-                    startActivity(new Intent(getApplicationContext(), ResultActivity.class));
+                    pos = position;
+                    new setMain().execute(IP_ADDR + "/select"
+                            + "?vote_title=" + title[pos]
+                            + "&member_name=" + LoginActivity.loginId);
                 }
             });
         }
@@ -110,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         public class ItemViewHolder extends RecyclerView.ViewHolder {
 
             private ImageView image;
-            private TextView title, detail, date, time;
+            private TextView title, detail, time;
 
             public ItemViewHolder(View view) {
 
@@ -119,9 +129,152 @@ public class MainActivity extends AppCompatActivity {
                 image = view.findViewById(R.id.imageView);
                 title = view.findViewById(R.id.title);
                 detail = view.findViewById(R.id.detail);
-                date = view.findViewById(R.id.date);
                 time = view.findViewById(R.id.time);
             }
+        }
+    }
+
+    // server connection
+    public class getMain extends AsyncTask<String, String, String> {
+
+        JSONObject json;
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            json = null;
+
+            try {
+                HttpURLConnection con = null;
+                BufferedReader reader = null;
+
+                try {
+                    InputStream stream = null;
+                    StringBuffer buffer = new StringBuffer();
+                    String line = "";
+
+                    for (int i = 0; i < urls.length; i++) {
+
+                        URL url = new URL(urls[i]);
+                        con = (HttpURLConnection) url.openConnection();
+                        con.connect();
+                        stream = con.getInputStream();
+                        reader = new BufferedReader(new InputStreamReader(stream));
+                        while ((line = reader.readLine()) != null)
+                            buffer.append(line + "\n");
+                    }
+
+                    return buffer.toString();
+
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (con != null)
+                        con.disconnect();
+                    try {
+                        if (reader != null)
+                            reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String str) {
+
+            String[] arr = str.split("\"");
+            title = new String[50];
+            description = new String[50];
+            candidate = new String[50];
+
+            // recycler view
+            recyclerView = findViewById(R.id.recyclerView);
+            recyclerView.setHasFixedSize(true);
+            items = new ArrayList<RecyclerItem>();
+            int j = 0;
+            for (int i = 3; i < arr.length; i += 12) {
+
+                title[j] = arr[i];
+                description[j] = arr[i + 4];
+                candidate[j] = arr[i + 8];
+                items.add(new RecyclerItem(R.drawable.ls_normal, title[j], description[j++], String.valueOf(i / 12 + 1)));
+            }
+
+            layoutManager = new LinearLayoutManager(getApplicationContext());
+            recyclerView.setLayoutManager(layoutManager);
+            adapter = new MyAdapter();
+            recyclerView.setAdapter(adapter);
+        }
+    }
+
+    // server connection
+    public class setMain extends AsyncTask<String, String, String> {
+
+        JSONObject json;
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            json = null;
+
+            try {
+                HttpURLConnection con = null;
+                BufferedReader reader = null;
+
+                try {
+                    InputStream stream = null;
+                    StringBuffer buffer = new StringBuffer();
+                    String line = "";
+
+                    for (int i = 0; i < urls.length; i++) {
+
+                        URL url = new URL(urls[i]);
+                        con = (HttpURLConnection) url.openConnection();
+                        con.connect();
+                        stream = con.getInputStream();
+                        reader = new BufferedReader(new InputStreamReader(stream));
+                        while ((line = reader.readLine()) != null)
+                            buffer.append(line + "\n");
+                    }
+
+                    return buffer.toString();
+
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (con != null)
+                        con.disconnect();
+                    try {
+                        if (reader != null)
+                            reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String str) {
+
+            if (str.contains("1")) // complete
+                startActivity(new Intent(getApplicationContext(), ResultActivity.class));
+            else // ready
+                startActivity(new Intent(getApplicationContext(), VoteActivity.class));
         }
     }
 }

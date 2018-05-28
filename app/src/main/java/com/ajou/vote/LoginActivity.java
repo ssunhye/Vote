@@ -26,6 +26,7 @@ public class LoginActivity extends AppCompatActivity {
     Button btn_login, btn_signup;
     EditText txt_id, txt_pw;
     String id, pw, ph;
+    static String loginId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +121,7 @@ public class LoginActivity extends AppCompatActivity {
             if (str.length() > 5) {
 
                 ph = str.substring(str.indexOf(":") + 2, str.indexOf("}") - 1);
+                loginId = id;
                 startActivity(new Intent(getApplicationContext(), MainActivity.class)); // enter main activity
             } else { // no member data
 

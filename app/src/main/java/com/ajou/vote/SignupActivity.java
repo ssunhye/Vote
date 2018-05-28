@@ -53,7 +53,7 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if(man.isChecked()) {
+                if (man.isChecked()) {
 
                     mw = 'm';
                     woman.setChecked(false);
@@ -65,7 +65,7 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if(woman.isChecked()) {
+                if (woman.isChecked()) {
 
                     mw = 'w';
                     man.setChecked(false);
@@ -87,7 +87,7 @@ public class SignupActivity extends AppCompatActivity {
             public void onClick(View v) {
 
 
-                if(chk == true) {
+                if (chk == true) {
                     //
                     // ### ENC
                     //
@@ -100,7 +100,7 @@ public class SignupActivity extends AppCompatActivity {
                             + "&password=" + pw
                             + "&phone=" + ph
                             + "&gender=" + mw);
-                }else {
+                } else {
 
                     Toast.makeText(getApplicationContext(), "전화번호 중복확인이 필요합니다.", Toast.LENGTH_LONG).show();
                 }
